@@ -19,7 +19,9 @@
   },
   "homepage": "https://github.com/leafschick/100949480_lab_test1_chat_app#readme",
   "dependencies": {
+    "dotenv": "^17.2.4",
     "express": "^5.2.1",
+    "mongoose": "^9.2.0",
     "socket.io": "^4.8.3"
   }
 }
