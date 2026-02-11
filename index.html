@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat Server Connection</title>
+</head>
+<body>
+  <h1>This is the lab test one test on chat server</h1>
+  <p id="status">Connecting to chat server...</p>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+    const statusEl = document.getElementById("status");
+
+    const socket = io("http://localhost:3000");
+
+    socket.on("connect", () => {
+      console.log("Congratulation you are now connected to Socket.io server:", socket.id);
+      statusEl.textContent = "Congratulations now successfully connected to Socket.io server (ID: " + socket.id + ")";
+    });
+
+    socket.on("connect_error", (err) => {
+      console.log("Sorry there seems to be a connection error at this time. Please try again later", err.message);
+      statusEl.textContent = "The Socket connection failed has faild. Try again later " + err.message;
+    });
+  </script>
+</body>
+</html>
