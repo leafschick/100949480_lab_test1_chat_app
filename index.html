@@ -15,11 +15,15 @@
 
     const socket = io("http://localhost:3000");
 
+    // Listen for connection events
+
     socket.on("connect", () => {
       console.log("Congratulation you are now connected to Socket.io server:", socket.id);
       statusEl.textContent = "Congratulations now successfully connected to Socket.io server (ID: " + socket.id + ")";
     });
 
+    // Listen for disconnection events
+    
     socket.on("connect_error", (err) => {
       console.log("Sorry there seems to be a connection error at this time. Please try again later", err.message);
       statusEl.textContent = "The Socket connection failed has faild. Try again later " + err.message;

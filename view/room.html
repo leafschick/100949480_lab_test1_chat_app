@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Join Room</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/public/style.css">
+</head>
+
+<body>
+  <div class="auth-wrap">
+    <div class="auth-card">
+
+      <div class="auth-title">Join Room</div>
+
+      <div class="auth-msg" style="margin-top:-10px; margin-bottom:20px; color:#6c757d;">
+        Olympics Milano Cortina 2026 sports chatroom
+      </div>
+
+      <div class="auth-grid" style="margin-bottom: 10px;">
+        <div>
+          <div class="auth-label">Logged in as</div>
+          <input class="auth-input" id="who" value="Loading..." readonly />
+        </div>
+
+        <div>
+          <div class="auth-label">Choose Room</div>
+          <select id="roomSelect" class="auth-select" required>
+            <option value="Alpine Skiing">Alpine Skiing</option>
+            <option value="Biathlon">Biathlon</option>
+            <option value="Bobsleigh">Bobsleigh</option>
+            <option value="Cross-Country Skiing">Cross-Country Skiing</option>
+            <option value="Curling">Curling</option>
+            <option value="Figure Skating">Figure Skating</option>
+            <option value="Freestyle Skiing">Freestyle Skiing</option>
+            <option value="Ice Hockey">Ice Hockey</option>
+            <option value="Luge">Luge</option>
+            <option value="Nordic Combined">Nordic Combined</option>
+            <option value="Short Track Speed Skating">Short Track Speed Skating</option>
+            <option value="Ski Jumping">Ski Jumping</option>
+            <option value="Ski Mountaineering">Ski Mountaineering</option>
+            <option value="Snowboard">Snowboard</option>
+            <option value="Speed Skating">Speed Skating</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="msg" class="auth-msg" style="display:none;"></div>
+
+      <div class="auth-btn-row" style="margin-top: 10px;">
+        <button id="joinBtn" class="auth-btn" type="button">Join Room</button>
+      </div>
+
+      <hr style="margin: 26px 0;">
+
+      
+      <div class="auth-label" style="margin-bottom: 12px;">Room Updates</div>
+      <div id="updates" style="background:#f3f4f6; border-radius:18px; padding:18px; min-height:150px; overflow:auto;">
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+    const whoEl = document.getElementById("who");
+    const msgEl = document.getElementById("msg");
+    const updatesEl = document.getElementById("updates");
+    const joinBtn = document.getElementById("joinBtn");
+    const roomSelect = document.getElementById("roomSelect");
+
+    function showMessage(type, text) {
+      msgEl.style.display = "block";
+      msgEl.textContent = text;
+
+      msgEl.style.color = (type === "success") ? "green" : "crimson";
+    }
+
+    function addUpdate(text) {
+      const p = document.createElement("div");
+      p.style.padding = "8px 10px";
+      p.style.borderBottom = "1px solid rgba(0,0,0,0.06)";
+      p.textContent = text;
+      updatesEl.appendChild(p);
+      updatesEl.scrollTop = updatesEl.scrollHeight;
+    }
+
+    // Get session from localStorage
+    const stored = localStorage.getItem("chatUser");
+    if (!stored) {
+      showMessage("error", "We cannot find any session found. You must login first.");
+      whoEl.value = "Unknown";
+      joinBtn.disabled = true;
+    } else {
+      const user = JSON.parse(stored);
+      whoEl.value = user.username || "";
+    }
+
+    // Connect to the socket
+    const socket = io("http://localhost:3000");
+
+    socket.on("connect", () => {
+      addUpdate("Connected to server (socket: " + socket.id + ")");
+    });
+
+    // Listen for any notification
+    socket.on("roomNotice", (data) => {
+      if (data && data.message) addUpdate(data.message);
+    });
+
+    joinBtn.addEventListener("click", () => {
+  const storedUser = localStorage.getItem("chatUser");
+
+  if (!storedUser) {
+    showMessage("danger", "No session found. Please login again.");
+    return;
+  }
+
+  const user = JSON.parse(storedUser);
+  const room = roomSelect.value;
+
+  socket.emit("joinRoom", {
+    username: user.username,
+    room
+  });
+
+  showMessage("success", "Joined room: " + room);
+
+  // Save room for chat page
+  localStorage.setItem("chatRoom", room);
+
+  // Redirect to chat page
+  window.location.href = "/view/chat.html";
+});
+
+  </script>
+</body>
+</html>
